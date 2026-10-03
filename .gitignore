@@ -1,0 +1,10 @@
+my_env/
+
+__pycache__/
+*.py[cod]
+
+instance/
+*.db
+
+.vscode/
+.idea/
