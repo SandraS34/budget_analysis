@@ -13,7 +13,7 @@
     </section>
 
     <section class="budget-categories">
-        <h2>Co będziesz analizować?</h2>
+        <h3>Co będziesz analizować?</h3>
 
         <ul>
             <li>Kredyty i inne zobowiązania</li>
@@ -22,5 +22,116 @@
             <li>Media i rachunki</li>
             <li>Pozostałe wydatki</li>
         </ul>
+    </section>
+
+    <section class="month-selection mt-4">
+        <h2>Wybierz miesiąc</h2>
+
+        <form method="GET" action="/">
+            <div class="mb-3">
+
+                <input
+                    type="month"
+                    id="month"
+                    name="month"
+                    class="form-control"
+                    value="{{ selected_month.strftime('%Y-%m') }}"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Pokaż budżet
+            </button>
+        </form>
+    </section>
+
+    <section class="budget-summary mt-4">
+        <h2 class="mb-3">
+            Budżet {{ selected_month.strftime('%m.%Y') }}
+        </h2>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered align-middle">
+
+
+                <thead>
+                    <tr class="table-primary">
+                        <th colspan="2">DOCHODY</th>
+                    </tr>
+                </thead>
+                <tbody class="table-light">
+                    <tr>
+                        <th scope="col">Źródło</th>
+                        <th scope="col" class="text-end">Planowana kwota</th>
+                    </tr>
+
+                    {% for income in incomes %}
+                        <tr>
+                            <td>{{ income.name }}</td>
+                            <td class="text-end">
+                                {{ '%.2f'|format(income.amount_grosze / 100) }} zł
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="2">Brak dochodów dla tego miesiąca.</td>
+                        </tr>
+                    {% endfor %}
+
+                    <tr class="fw-bold">
+                        <td scope="row">Suma dochodów</td>
+                        <td class="text-end">
+                            {{ '%.2f'|format(total_income / 100) }} zł
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="table-primary">
+                    <tr>
+                        <th colspan="3">WYDATKI</th>
+                    </tr>
+                </thead>
+                <tbody class="table-light">
+                    <tr>
+                        <th scope="col">Cel</th>
+                        <th scope="col">Kategoria</th>
+                        <th scope="col" class="text-end">Kwota</th>
+                    </tr>
+
+                    {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.name }}</td>
+                            <td>{{ expense.category }}</td>
+                            <td class="text-end">
+                                {{ '%.2f'|format(expense.amount_grosze / 100) }} zł
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">Brak wydatków dla tego miesiąca.</td>
+                        </tr>
+                    {% endfor %}
+
+                    <tr class="fw-bold">
+                        <td colspan="2">Suma wydatków</td>
+                        <td class="text-end">
+                            {{ '%.2f'|format(total_expenses / 100) }} zł
+                        </td>
+                    </tr>
+
+                    <tr class="table-success fw-bold">
+                        <td colspan="2">Pozostałe środki</td>
+                        <td class="text-end">
+                            {{ '%.2f'|format(remaining / 100) }} zł
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 {% endblock %}
