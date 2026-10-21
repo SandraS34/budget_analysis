@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %} Dodaj wydatki {% endblock %}
+
+{% block content %}
+<a href="/" class="btn btn-outline-secondary mb-3">
+    ← Powrót do strony głównej
+</a>
+<section class="add_expense">
+    <h2 class="mb-4">Dodaj zobowiązanie</h2>
+
+    <form method="POST">
+        <label for="month">Miesiąc:</label>
+        <input type="month" id="month" name="month" required>
+
+        <label for="name">Cel wydatku:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="category">Kategoria:</label>
+        <select id="category" name="category" class="form-select" required>
+            <option value="">Wybierz kategorię</option>
+            <option value="Kredyty i inne zobowiązania">Kredyty i inne zobowiązania</option>
+            <option value="Opłaty mieszkaniowe">Opłaty mieszkaniowe</option>
+            <option value="Wydatki na dzieci">Wydatki na dzieci</option>
+            <option value="Media i rachunki">Media i rachunki</option>
+            <option value="Transport">Transport</option>
+            <option value="Pozostałe wydatki">Pozostałe wydatki</option>
+        </select>
+
+        <label for="amount">Kwota (zł):</label>
+        <input type="number" id="amount" name="amount" min="0.01" step="0.01" required>
+
+        <button type="submit">Zapisz</button>
+    </form>
+</section>
+{% endblock %}

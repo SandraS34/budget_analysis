@@ -1,10 +1,102 @@
-from flask import Flask, render_template
+from datetime import date
+from flask import Flask, render_template, request
+from pathlib import Path
+
+from database import db
+from models import Expense, Income
+
 
 app = Flask(__name__)
+app.secret_key = 'dev'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///budget.db"
+
+db.init_app(app)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    month_input = request.args.get('month')
+    if month_input:
+        year, month = map(int, month_input.split('-'))
+        selected_month = date(year, month, 1)
+    else:
+        selected_month = date.today().replace(day=1)
 
+    incomes = db.session.execute(
+        db.select(Income)
+        .where(Income.month == selected_month)
+        .order_by(Income.month.desc())
+    ).scalars().all()
+
+    expenses = db.session.execute(
+        db.select(Expense)
+        .where(Expense.month == selected_month)
+        .order_by(Expense.category, Expense.name)
+    ).scalars().all()
+
+    total_income = sum(income.amount_grosze for income in incomes)
+    total_expenses = sum(expense.amount_grosze for expense in expenses)
+
+    remaining = total_income - total_expenses
+
+    return render_template(
+        'index.html',
+         incomes=incomes,
+         expenses=expenses,
+         total_income=total_income,
+         total_expenses=total_expenses,
+         remaining=remaining,
+         selected_month=selected_month)
+
+@app.route('/income/add', methods=['GET', 'POST'])
+def add_income():
+    if request.method == 'POST':
+        month_input = request.form['month']
+        name = request.form['name']
+        amount_input = request.form['amount']
+
+        year, month = map(int, month_input.split('-'))
+        month_date = date(year, month, 1)
+        amount_grosze = round(float(amount_input)*100)
+
+        income = Income(
+            month = month_date,
+            name = name,
+            amount_grosze = amount_grosze,
+        )
+
+        db.session.add(income)
+        db.session.commit()
+  
+    return render_template('add_income.html')
+
+@app.route('/expense/add', methods=['GET', 'POST'])
+def add_expense():
+    if request.method == 'POST':
+        month_input = request.form['month']
+        name = request.form['name']
+        category = request.form['category']
+        amount_input = request.form['amount']
+
+        year, month = map(int, month_input.split('-'))
+        month_date = date(year, month, 1)
+        amount_grosze = round(float(amount_input)*100)
+
+        expense = Expense(
+            month = month_date,
+            name = name,
+            category = category,
+            amount_grosze = amount_grosze,
+        )
+
+        db.session.add(expense)
+        db.session.commit()
+  
+    return render_template('add_expense.html')
+
+
+with app.app_context():
+    db.create_all()
+    
 if __name__ == '__main__':
     app.run(debug=True)
