@@ -1,5 +1,5 @@
 from datetime import date
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request
 from pathlib import Path
 
 from database import db
@@ -70,6 +70,58 @@ def add_income():
   
     return render_template('add_income.html')
 
+
+@app.route('/income/manage')
+def manage_income():
+    month_input = request.args.get('month')
+
+    if month_input:
+        year, month = map(int, month_input.split('-'))
+        selected_month = date(year, month, 1)
+    else:
+        selected_month = date.today().replace(day=1)
+
+    incomes = db.session.execute(
+        db.select(Income)
+        .where(Income.month == selected_month)
+        .order_by(Income.name)
+    ).scalars().all()
+
+    return render_template(
+        'manage_income.html',
+        incomes=incomes,
+        selected_month=selected_month,
+    )
+
+@app.route('/income/edit/<int:income_id>', methods=['GET', 'POST'])
+def edit_income(income_id):
+    income = db.get_or_404(Income, income_id)
+
+    if request.method == 'POST':
+        month_input = request.form['month']
+        name = request.form['name']
+        amount_input = request.form['amount']
+
+        year, month = map(int, month_input.split('-'))
+
+        income.month = date(year, month, 1)
+        income.name = name
+        income.amount_grosze = round(float(amount_input)*100)
+
+        db.session.commit()
+
+    return render_template('edit_income.html', income=income)
+
+@app.route('/income/delete/<int:income_id>', methods=['POST'])
+def delete_income(income_id):
+    income = db.get_or_404(Income, income_id)
+    month = income.month
+
+    db.session.delete(income)
+    db.session.commit()
+
+    return redirect(f'/income/manage?month={month.strftime("%Y-%m")}')
+
 @app.route('/expense/add', methods=['GET', 'POST'])
 def add_expense():
     if request.method == 'POST':
@@ -93,6 +145,7 @@ def add_expense():
         db.session.commit()
   
     return render_template('add_expense.html')
+
 
 
 with app.app_context():

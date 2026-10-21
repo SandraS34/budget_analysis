@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %} Zarządzaj dochodami {% endblock %}
+
+{% block content %}
+<a href="/?month={{ selected_month.strftime('%Y-%m') }}" class="btn btn-outline-secondary mb-3">
+    ← Powrót do strony głównej
+</a>
+
+<section>
+    <h2>Zarządzaj dochodami</h2>
+
+    <p>
+        Miesiąc:
+        <strong>{{ selected_month.strftime('%m.%Y') }}</strong>
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Źródło dochodu</th>
+                    <th scope="col" class="text-end">Kwota</th>
+                    <th scope="col">Akcje</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for income in incomes %}
+                <tr>
+                    <td>{{ income.name }}</td>
+                    <td class="text-end">
+                        {{ '%.2f'|format(income.amount_grosze / 100) }} zł
+                    </td>
+                    <td class="text-nowrap">
+                        <a
+                            href="/income/edit/{{ income.id }}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                            Edytuj
+                        </a>
+                        <form
+                        method="POST"
+                        action="/income/delete/{{income.id}}"
+                        class="d-inline"
+                        onsubmit="return confirm('Czy na pewno chcesz usunąć ten dochód?');"
+                        >
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                Usuń
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">
+                        Brak dochodów dla tego miesiąca.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
