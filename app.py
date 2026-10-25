@@ -146,7 +146,58 @@ def add_expense():
   
     return render_template('add_expense.html')
 
+@app.route('/expense/manage')
+def manage_expenses():
+    month_input = request.args.get('month')
 
+    if month_input:
+        year, month = map(int, month_input.split('-'))
+        selected_month = date(year, month, 1)
+    else:
+        selected_month = date.today().replace(day=1)
+
+    expenses = db.session.execute(
+        db.select(Expense)
+        .where(Expense.month == selected_month)
+        .order_by(Expense.category, Expense.name)
+    ).scalars().all()
+
+    return render_template(
+        'manage_expenses.html',
+        expenses=expenses,
+        selected_month=selected_month,
+    )
+
+@app.route('/expense/edit/<int:expense_id>', methods=['GET', 'POST'])
+def edit_expense(expense_id):
+    expense = db.get_or_404(Expense, expense_id)
+
+    if request.method == 'POST':
+        month_input = request.form['month']
+        name = request.form['name']
+        category = request.form['category']
+        amount_input = request.form['amount']
+
+        year,month = map(int, month_input.split('-'))
+
+        expense.month = date(year, month, 1)
+        expense.name = name
+        expense.category = category
+        expense.amount_grosze = round(float(amount_input) * 100)
+
+        db.session.commit()
+
+    return render_template('edit_expense.html', expense=expense)
+
+@app.route('/expense/delete/<int:expense_id>', methods=['POST'])
+def delete_expense(expense_id):
+    expense = db.get_or_404(Expense, expense_id)
+    month = expense.month
+
+    db.session.delete(expense)
+    db.session.commit()
+
+    return redirect(f'/expense/manage?month={month.strftime("%Y-%m")}')
 
 with app.app_context():
     db.create_all()

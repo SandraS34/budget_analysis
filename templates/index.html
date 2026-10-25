@@ -129,6 +129,9 @@
                 </tbody>
             </table>
         </div>
-    <a href="/expense/add" class="btn btn-outline-primary mb-5">Dodaj wydatek</a>
+        <a href="/expense/add" class="btn btn-outline-primary mb-5">Dodaj wydatek</a>
+        <a href="/expense/manage?month={{ selected_month.strftime('%Y-%m') }}" class="btn btn-outline-primary mb-5">
+            Zarządzaj wydatkami
+        </a>
     </section>
 {% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %} Zarządzaj wydatkami {% endblock %}
+
+{% block content %}
+<a href="/?month={{ selected_month.strftime('%Y-%m') }}" class="btn btn-outline-secondary mb-3">
+    Powrót do strony głównej
+</a>
+
+<section>
+    <h2>Zarządzaj wydatkami</h2>
+
+    <p>
+        Miesiąc:
+        <strong>{{ selected_month.strftime('%m.%Y') }}</strong>
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Cel wydatku</th>
+                    <th scope="col">Kategoria</th>
+                    <th scope="col" class="text-end">Kwota</th>
+                    <th scope="col">Akcje</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.name }}</td>
+                    <td>{{ expense.category }}</td>
+                    <td class="text-end">
+                        {{ '%.2f'|format(expense.amount_grosze / 100) }} zł
+                    </td>
+                    <td>
+                        <a
+                            href="/expense/edit/{{ expense.id }}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                            Edytuj
+                        </a>
+                        <form
+                        method="POST"
+                        action="/expense/delete/{{expense.id}}"
+                        class="d-inline"
+                        onsubmit="return confirm('Czy na pewno chcesz usunąć ten wydatek?');"
+                        >
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                Usuń
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">
+                        Brak wydatków dla tego miesiąca.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
