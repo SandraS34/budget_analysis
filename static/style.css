@@ -2,7 +2,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
+    background-color: #aabaaef1;
     color: #263238;
 }
 
@@ -26,7 +26,7 @@ main {
 section {
     margin-bottom: 24px;
     padding: 24px;
-    background-color: white;
+    background-color: #aabaaef1;
     border-radius: 8px;
 }
 
@@ -62,4 +62,9 @@ form button {
 
 form button:hover {
     background-color: #326b62;
+}
+
+.table thead th {
+    text-align: center;
+    vertical-align: middle;
 }
